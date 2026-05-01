@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
+@import "tailwindcss";
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f0f4f8;
+  color: #1a202c;
+  margin: 0;
+}
+
+#root { min-height: 100vh; width: 100%; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #718096; }
+
+/* ── PRINT ── */
+@media print {
+  /* Hide everything except the invoice */
+  body > * { display: none !important; }
+  #invoice-print-root { display: block !important; }
+
+  /* When modal is open, print only invoice-print-area */
+  .no-print { display: none !important; }
+
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #invoice-print-area {
+    display: block !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* input/select/textarea focus ring override */
+input:focus, select:focus, textarea:focus {
+  border-color: #064e3b !important;
+  box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.12) !important;
+  outline: none !important;
+}
