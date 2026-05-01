@@ -2,45 +2,45 @@ export function printElement(elementId: string, title = 'Invoice') {
   const el = document.getElementById(elementId);
   if (!el) return;
 
-  const win = window.open('', '_blank', 'width=900,height=750');
-  if (!win) return;
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+  document.body.appendChild(iframe);
 
-  win.document.write(`<!DOCTYPE html>
+  const iframeDoc = iframe.contentDocument!;
+  iframeDoc.open();
+  iframeDoc.write(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #fff;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
-    @media print {
-      @page { margin: 0; }
-      body { margin: 0; }
-    }
+    body { font-family: 'Inter', sans-serif; background: #fff; }
+    @media print { @page { margin: 10mm; } }
   </style>
 </head>
 <body>
   ${el.innerHTML}
   <script>
-    // Wait for fonts to load then print
     document.fonts.ready.then(function () {
-      setTimeout(function () {
-        window.print();
-        setTimeout(function () { window.close(); }, 500);
-      }, 300);
+      window.focus();
+      window.print();
     });
-  </script>
+  <\/script>
 </body>
 </html>`);
+  iframeDoc.close();
 
-  win.document.close();
+  iframe.contentWindow?.addEventListener('afterprint', () => {
+    document.body.removeChild(iframe);
+  });
 }
