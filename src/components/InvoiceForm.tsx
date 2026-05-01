@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Invoice, LineItem, CompanySettings } from '../types';
 import { generateId, formatInvoiceNumber, formatCurrency } from '../utils/formatting';
 import PreviewModal from './PreviewModal';
@@ -32,12 +32,14 @@ export default function InvoiceForm({ settings, initialInvoice, onSave, onIncrem
   const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saved, setSaved]   = useState(false);
+  const [prevNextNumber, setPrevNextNumber] = useState(settings.nextInvoiceNumber);
+
+  if (!initialInvoice && prevNextNumber !== settings.nextInvoiceNumber) {
+    setPrevNextNumber(settings.nextInvoiceNumber);
+    setInvoiceNumber(formatInvoiceNumber(settings.nextInvoiceNumber));
+  }
 
   const total = lineItems.reduce((s, i) => s + i.total, 0);
-
-  useEffect(() => {
-    if (!initialInvoice) setInvoiceNumber(formatInvoiceNumber(settings.nextInvoiceNumber));
-  }, [settings.nextInvoiceNumber]);
 
   function updateLine(id: string, field: keyof LineItem, value: string | number) {
     setLineItems((prev) =>

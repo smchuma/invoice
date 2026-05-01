@@ -18,32 +18,6 @@ body {
 ::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: #718096; }
 
-/* ── PRINT ── */
-@media print {
-  /* Hide everything except the invoice */
-  body > * { display: none !important; }
-  #invoice-print-root { display: block !important; }
-
-  /* When modal is open, print only invoice-print-area */
-  .no-print { display: none !important; }
-
-  body {
-    background: white !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  #invoice-print-area {
-    display: block !important;
-    position: static !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-    border: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-}
 
 /* input/select/textarea focus ring override */
 input:focus, select:focus, textarea:focus {
