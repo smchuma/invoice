@@ -16,6 +16,8 @@ export interface Invoice {
   lineItems: LineItem[];
   paymentMethod: string;
   subtotal: number;
+  vatEnabled: boolean;
+  vatAmount: number;
   total: number;
   terms?: string;
   notes?: string;

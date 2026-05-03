@@ -9,6 +9,9 @@ interface Props {
 export default function InvoicePreview({ invoice, settings }: Props) {
   const green = settings.primaryColor || "#064e3b";
   const lineItems = invoice.lineItems ?? [];
+  const subtotal = invoice.subtotal ?? 0;
+  const vatEnabled = invoice.vatEnabled ?? false;
+  const vatAmount = invoice.vatAmount ?? 0;
   const total = invoice.total ?? 0;
 
   return (
@@ -240,11 +243,23 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             </div>
           </div>
           <div>
+            {vatEnabled && (
+              <div style={{ fontSize: "11px", color: "#4a5568", marginBottom: "6px", lineHeight: 1.9 }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>Subtotal:</span>
+                  <span style={{ fontWeight: 600 }}>{formatCurrency(subtotal)}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>VAT (18%):</span>
+                  <span style={{ fontWeight: 600 }}>{formatCurrency(vatAmount)}</span>
+                </div>
+              </div>
+            )}
             <div
               style={{
                 fontSize: "11px",
                 color: "#a0aec0",
-                marginBottom: "6px",
+                marginBottom: "4px",
               }}
             >
               Amount Due:
@@ -376,6 +391,18 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             gap: "10px",
           }}
         >
+          {vatEnabled && (
+            <div style={{ width: "100%", fontSize: "12px", color: "#4a5568", lineHeight: 2, marginBottom: "4px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span>Subtotal:</span>
+                <span style={{ fontWeight: 600 }}>{formatCurrency(subtotal)}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span>VAT (18%):</span>
+                <span style={{ fontWeight: 600 }}>{formatCurrency(vatAmount)}</span>
+              </div>
+            </div>
+          )}
           <div
             style={{
               backgroundColor: green,

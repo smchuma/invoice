@@ -28,7 +28,8 @@ export default function InvoiceForm({ settings, initialInvoice, onSave, onIncrem
   const [lineItems, setLineItems]           = useState<LineItem[]>(
     initialInvoice?.lineItems?.length ? initialInvoice.lineItems : [emptyLine()]
   );
-  const [terms, setTerms]   = useState(initialInvoice?.terms ?? settings.defaultTerms);
+  const [terms, setTerms]       = useState(initialInvoice?.terms ?? settings.defaultTerms);
+  const [vatEnabled, setVatEnabled] = useState(initialInvoice?.vatEnabled ?? false);
   const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saved, setSaved]   = useState(false);
@@ -39,7 +40,9 @@ export default function InvoiceForm({ settings, initialInvoice, onSave, onIncrem
     setInvoiceNumber(formatInvoiceNumber(settings.nextInvoiceNumber));
   }
 
-  const total = lineItems.reduce((s, i) => s + i.total, 0);
+  const subtotal = lineItems.reduce((s, i) => s + i.total, 0);
+  const vatAmount = vatEnabled ? Math.round(subtotal * 0.18 * 100) / 100 : 0;
+  const total = subtotal + vatAmount;
 
   function updateLine(id: string, field: keyof LineItem, value: string | number) {
     setLineItems((prev) =>
@@ -69,7 +72,7 @@ export default function InvoiceForm({ settings, initialInvoice, onSave, onIncrem
     return {
       id: initialInvoice?.id ?? generateId(),
       invoiceNumber, date, customerName, customerTIN, customerVRN,
-      paymentMethod, lineItems, subtotal: total, total, terms,
+      paymentMethod, lineItems, subtotal, vatEnabled, vatAmount, total, terms,
       createdAt: initialInvoice?.createdAt ?? new Date().toISOString(),
     };
   }
@@ -95,7 +98,7 @@ export default function InvoiceForm({ settings, initialInvoice, onSave, onIncrem
 
   const currentInvoice: Partial<Invoice> = {
     invoiceNumber, date, customerName, customerTIN, customerVRN,
-    paymentMethod, lineItems, total, terms,
+    paymentMethod, lineItems, subtotal, vatEnabled, vatAmount, total, terms,
   };
 
   // ── shared styles ──
@@ -257,8 +260,8 @@ export default function InvoiceForm({ settings, initialInvoice, onSave, onIncrem
             ))}
           </div>
 
-          {/* Add + Grand total */}
-          <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+          {/* Add line + VAT toggle */}
+          <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <button onClick={addLine}
               style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', border: '1.5px dashed #a7f3d0', backgroundColor: '#f0fdf4', color: '#064e3b', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,9 +269,37 @@ export default function InvoiceForm({ settings, initialInvoice, onSave, onIncrem
               </svg>
               Add Line Item
             </button>
-            <div style={{ backgroundColor: '#064e3b', color: '#fff', borderRadius: '12px', padding: '10px 20px', textAlign: 'right' }}>
-              <div style={{ fontSize: '10px', opacity: 0.7, marginBottom: '2px', letterSpacing: '0.5px' }}>GRAND TOTAL</div>
-              <div style={{ fontSize: '18px', fontWeight: 800 }}>{formatCurrency(total)}</div>
+            <button
+              onClick={() => setVatEnabled((v) => !v)}
+              style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '9px 16px', borderRadius: '10px', border: `1.5px solid ${vatEnabled ? '#064e3b' : '#e2e8f0'}`, backgroundColor: vatEnabled ? '#f0fdf4' : '#fafbfc', color: vatEnabled ? '#064e3b' : '#718096', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all 0.15s' }}
+            >
+              <div style={{ width: '16px', height: '16px', borderRadius: '4px', border: `2px solid ${vatEnabled ? '#064e3b' : '#cbd5e0'}`, backgroundColor: vatEnabled ? '#064e3b' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {vatEnabled && <svg width="10" height="10" fill="none" stroke="#fff" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+              </div>
+              VAT 18%
+            </button>
+          </div>
+
+          {/* Totals breakdown */}
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ backgroundColor: '#064e3b', color: '#fff', borderRadius: '12px', padding: '12px 20px', minWidth: '200px' }}>
+              {vatEnabled && (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', opacity: 0.8, fontSize: '12px' }}>
+                    <span>Subtotal</span>
+                    <span style={{ fontWeight: 600 }}>{formatCurrency(subtotal)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', opacity: 0.8, fontSize: '12px' }}>
+                    <span>VAT (18%)</span>
+                    <span style={{ fontWeight: 600 }}>{formatCurrency(vatAmount)}</span>
+                  </div>
+                  <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.25)', marginBottom: '8px' }} />
+                </>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ fontSize: '10px', opacity: 0.7, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Total</div>
+                <div style={{ fontSize: '18px', fontWeight: 800 }}>{formatCurrency(total)}</div>
+              </div>
             </div>
           </div>
         </div>
